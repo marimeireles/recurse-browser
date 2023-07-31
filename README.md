@@ -8,7 +8,7 @@ pip install -e .
 
 ## Running
 
-Simply run the `main.py` file if you want to see the browser's output with an URL:
+Simply run the `main.py` file with an URL:
 
 ```
 python main.py https://example.com
