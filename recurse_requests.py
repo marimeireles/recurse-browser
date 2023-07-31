@@ -29,28 +29,28 @@ def request(url):
     s.connect((host, port))
 
     if scheme == "https":
-    """
-        TLS (Transport Layer Security)
+        """
+            TLS (Transport Layer Security)
 
-        TLS is the successor to SSL and is currently the standard for secure network
-        communication. It provides privacy and data integrity between two communicating
-        applications and is used for web browsers and other applications that require
-        data to be securely exchanged over a network.
+            TLS is the successor to SSL and is currently the standard for secure network
+            communication. It provides privacy and data integrity between two communicating
+            applications and is used for web browsers and other applications that require
+            data to be securely exchanged over a network.
 
-        TLS ensures that:
+            TLS ensures that:
 
-          Encryption: Data transmitted over the network is encrypted, so that even if
-          someone intercepts the packets, they can't read the actual data without the
-          correct encryption keys.
+              Encryption: Data transmitted over the network is encrypted, so that even if
+              someone intercepts the packets, they can't read the actual data without the
+              correct encryption keys.
 
-          Authentication: The server (and optionally the client) must prove its
-          identity using a digital certificate. This ensures that you're communicating
-          with the legitimate server and not a malicious actor.
+              Authentication: The server (and optionally the client) must prove its
+              identity using a digital certificate. This ensures that you're communicating
+              with the legitimate server and not a malicious actor.
 
-          Integrity: The data cannot be tampered with in transit without detection.
-          This ensures that the data you send arrives at its destination in the same
-          form as when it was sent.
-    """
+              Integrity: The data cannot be tampered with in transit without detection.
+              This ensures that the data you send arrives at its destination in the same
+              form as when it was sent.
+        """
 
         # sets up rules and params. for how the SSL/TLS handshake should be conducted
         ctx = ssl.create_default_context()
