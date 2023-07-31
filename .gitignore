@@ -1,0 +1,3 @@
+*.egg-info
+src/recurse_browser/__pycache__/*
+tests/__pycache__/*
