@@ -29,7 +29,7 @@ def request(url):
     s.connect((host, port))
 
     if scheme == "https":
-    '''
+    """
         TLS (Transport Layer Security)
 
         TLS is the successor to SSL and is currently the standard for secure network
@@ -50,7 +50,7 @@ def request(url):
           Integrity: The data cannot be tampered with in transit without detection.
           This ensures that the data you send arrives at its destination in the same
           form as when it was sent.
-    '''
+    """
 
         # sets up rules and params. for how the SSL/TLS handshake should be conducted
         ctx = ssl.create_default_context()
