@@ -74,7 +74,7 @@ def request(url):
         headers[header.lower()] = value.strip()
 
     # we need to treat these headers differently
-    # ToDo: Add support for HTTP compression https://github.com/marimeireles/recurse-browser/issues/1
+    # ToDo: Add support for HTTP compression issue #1
     assert "transfer-encoding" not in headers
     assert "content-encoding" not in headers
 
@@ -96,7 +96,3 @@ def show(body):
 def load(url):
     headers, body = request(url)
     show(body)
-
-if __name__ == "__main__":
-    import sys
-    load(sys.argv[1])
