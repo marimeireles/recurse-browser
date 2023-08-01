@@ -11,6 +11,7 @@ import tkinter.font
 import unittest
 from unittest import mock
 
+
 class socket:
     URLs = {}
     Requests = {}
@@ -28,24 +29,30 @@ class socket:
 
     def _check_cert(self):
         if self.connected and self.host and self.ssl_hostname:
-            assert self.host == self.ssl_hostname, "server_hostname does not match the host"
-            if self.host.endswith(".badssl.com"): # Fake badssl.com
+            assert (
+                self.host == self.ssl_hostname
+            ), "server_hostname does not match the host"
+            if self.host.endswith(".badssl.com"):  # Fake badssl.com
                 raise ssl.SSLCertVerificationError()
 
     def send(self, text):
         self.request += text
         self.method, self.path, _ = self.request.decode("latin1").split(" ", 2)
-        
+
         if self.method == "POST":
             beginning, self.body = self.request.decode("latin1").split("\r\n\r\n")
             headers = [item.split(": ") for item in beginning.split("\r\n")[1:]]
             assert any(name.lower() == "content-length" for name, value in headers)
-            assert all(int(value) == len(self.body) for name, value in headers
-                       if name.lower() == "content-length")
+            assert all(
+                int(value) == len(self.body)
+                for name, value in headers
+                if name.lower() == "content-length"
+            )
 
     def makefile(self, mode, encoding, newline):
-        assert self.connected and self.host and self.port, \
-            "You cannot call makefile() on a socket until you call connect() and send()"
+        assert (
+            self.connected and self.host and self.port
+        ), "You cannot call makefile() on a socket until you call connect() and send()"
         if self.port == 80 and self.scheme == "http":
             url = self.scheme + "://" + self.host + self.path
         elif self.port == 443 and self.scheme == "https":
@@ -53,7 +60,9 @@ class socket:
         else:
             url = self.scheme + "://" + self.host + ":" + str(self.port) + self.path
         self.Requests.setdefault(url, []).append(self.request)
-        assert self.method == self.URLs[url][0], f"Made a {self.method} request to a {self.URLs[url][0]} URL"
+        assert (
+            self.method == self.URLs[url][0]
+        ), f"Made a {self.method} request to a {self.URLs[url][0]} URL"
         output = self.URLs[url][1]
         if self.URLs[url][2]:
             assert self.body == self.URLs[url][2], (self.body, self.URLs[url][2])
@@ -78,12 +87,14 @@ class socket:
     @classmethod
     def serve(cls, html):
         html = html.encode("utf8") if isinstance(html, str) else html
-        response  = b"HTTP/1.0 200 OK\r\n"
+        response = b"HTTP/1.0 200 OK\r\n"
         response += b"Content-Type: text/html\r\n"
         response += b"Content-Length: " + str(len(html)).encode("ascii") + b"\r\n"
         response += b"\r\n" + html
         prefix = "http://test/"
-        url = next(prefix + str(i) for i in range(1000) if prefix + str(i) not in cls.URLs)
+        url = next(
+            prefix + str(i) for i in range(1000) if prefix + str(i) not in cls.URLs
+        )
         cls.respond(url, response)
         return url
 
@@ -99,6 +110,7 @@ class socket:
     def clear_history(cls):
         cls.Requests = {}
 
+
 class ssl:
     def wrap_socket(self, s, server_hostname):
         s.ssl_hostname = server_hostname
@@ -110,11 +122,14 @@ class ssl:
     def patch(cls):
         return mock.patch("ssl.create_default_context", wraps=cls)
 
+
 class SilentTk:
     def bind(self, event, callback):
         pass
 
+
 tkinter.Tk = SilentTk
+
 
 class SilentCanvas:
     def __init__(self, *args, **kwargs):
@@ -141,7 +156,9 @@ class SilentCanvas:
     def delete(self, v):
         pass
 
+
 tkinter.Canvas = SilentCanvas
+
 
 class MockCanvas:
     def __init__(self, *args, **kwargs):
@@ -149,11 +166,13 @@ class MockCanvas:
 
     def create_text(self, x, y, text, font=None, anchor=None, **kwargs):
         if font or anchor:
-            print("create_text: x={} y={} text={} font={} anchor={}".format(
-                x, y, text, font, anchor))
+            print(
+                "create_text: x={} y={} text={} font={} anchor={}".format(
+                    x, y, text, font, anchor
+                )
+            )
         else:
-            print("create_text: x={} y={} text={}".format(
-                x, y, text))
+            print("create_text: x={} y={} text={}".format(x, y, text))
 
     def pack(self):
         pass
@@ -161,13 +180,17 @@ class MockCanvas:
     def delete(self, v):
         pass
 
+
 original_tkinter_canvas = tkinter.Canvas
+
 
 def patch_canvas():
     tkinter.Canvas = MockCanvas
 
+
 def unpatch_canvas():
     tkinter.Canvas = original_tkinter_canvas
+
 
 class MockFont:
     def __init__(self, size=None, weight=None, slant=None, style=None):
@@ -180,32 +203,43 @@ class MockFont:
         return self.size * len(word)
 
     def metrics(self, name=None):
-        all = {"ascent" : self.size * 0.75, "descent": self.size * 0.25,
-            "linespace": self.size}
+        all = {
+            "ascent": self.size * 0.75,
+            "descent": self.size * 0.25,
+            "linespace": self.size,
+        }
         if name:
             return all[name]
         return all
 
     def __repr__(self):
         return "Font size={} weight={} slant={} style={}".format(
-            self.size, self.weight, self.slant, self.style)
+            self.size, self.weight, self.slant, self.style
+        )
+
 
 tkinter.font.Font = MockFont
 
+
 def breakpoint(name, *args):
-    args_str = (", " + ", ".join(["'{}'".format(arg) for arg in args]) if args else "")
+    args_str = ", " + ", ".join(["'{}'".format(arg) for arg in args]) if args else ""
     print("breakpoint(name='{}'{})".format(name, args_str))
 
+
 def patch(cls):
-        return mock.patch("socket.socket", wraps=cls)
+    return mock.patch("socket.socket", wraps=cls)
+
 
 builtin_breakpoint = wbetools.record
+
 
 def patch_breakpoint():
     wbetools.record = breakpoint
 
+
 def unpatch_breakpoint():
     wbetools.record = builtin_breakpoint
+
 
 class Event:
     def __init__(self, x, y):
