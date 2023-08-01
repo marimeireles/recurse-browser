@@ -14,6 +14,8 @@ Simply run the `main.py` file with an URL:
 python main.py https://example.com
 ```
 
+If you're on a Mac and get an SSL related error, follow the answer in this [post](https://stackoverflow.com/questions/52805115/certificate-verify-failed-unable-to-get-local-issuer-certificate)
+
 ## Tests
 
 Install `pytest`:
