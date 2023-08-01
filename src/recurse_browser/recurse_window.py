@@ -4,6 +4,7 @@ from recurse_browser.browser_config import WIDTH, HEIGHT, HSTEP, VSTEP, SCROLL_S
 from recurse_browser.recurse_requests import request
 from recurse_browser.text_formatting import lex, Layout
 
+
 class Browser:
     def __init__(self):
         self.window = tkinter.Tk()
@@ -19,9 +20,7 @@ class Browser:
         character at its x,y coordinates
         """
         # erases canvas before text is redrawn during scrolling
-        self.canvas.delete(
-            "all"
-        )
+        self.canvas.delete("all")
 
         for x, y, word, font in self.display_list:
             # performance enhancement, prevents redrawing pixels that are off screen
@@ -30,11 +29,15 @@ class Browser:
             if y + VSTEP < self.scroll:
                 continue  # skips character above viewing window
 
-            self.canvas.create_text(x, y - self.scroll, text=word, font=font, anchor="nw")
+            self.canvas.create_text(
+                x, y - self.scroll, text=word, font=font, anchor="nw"
+            )
 
     def load(self, url):
         headers, body = request(url)
+        # separates text content from tag content from within the body tag
         tokens = lex(body)
+        # processes tags from body and apply comestic styles into body text
         self.display_list = Layout(tokens).display_list
         self.draw()
 
