@@ -65,13 +65,12 @@ class Layout:
     """
 
     def __init__(self, tokens):
-        self.tokens = tokens
         self.display_list = []
 
-        # cursor_x keeps track of the horizontal text aditions
-        self.cursor_x = HSTEP  # Resets horizontal cursor position
+        # cursor_x keeps track of the horizontal text additions
+        self.cursor_x = HSTEP
         # similarly cursor_y keeps track of the new added lines
-        self.cursor_y = VSTEP  # Breaks onto next line
+        self.cursor_y = VSTEP
         self.weight = "normal"
         self.style = "roman"
         self.size = 16
