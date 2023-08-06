@@ -1,50 +1,6 @@
 import tkinter.font
-
-from recurse_browser.browser_config import WIDTH, HEIGHT, HSTEP, VSTEP, SCROLL_STEP
-from recurse_browser.recurse_requests import request
-
-
-class Text:
-    def __init__(self, text):
-        self.text = text
-
-    def __repr__(self):
-        return "Text('{}')".format(self.text)
-
-
-class Tag:
-    def __init__(self, tag):
-        self.tag = tag
-
-    def __repr__(self):
-        return "Tag('{}')".format(self.tag)
-
-
-def lex(body):
-    """
-    Strips tags (anything between angle brackets) from body,
-    accumulates and and returns the remaining text.
-    Differentiates between text chars and tags.
-    """
-    out = []
-    text = ""
-    in_tag = False
-    for c in body:
-        if c == "<":
-            in_tag = True
-            if text:
-                out.append(Text(text))
-            text = ""
-        elif c == ">":
-            in_tag = False
-            out.append(Tag(text))
-            text = ""
-        else:
-            text += c
-    if not in_tag and text:
-        out.append(Text(text))
-    return out
-
+from recurse_browser.browser_config import WIDTH, HSTEP, VSTEP
+from recurse_browser.html_parser import Text
 
 FONTS = {}
 
@@ -64,7 +20,7 @@ class Layout:
     as a tuple in display_list
     """
 
-    def __init__(self, tokens):
+    def __init__(self, tree):
         self.display_list = []
 
         # cursor_x keeps track of the horizontal text additions
@@ -76,49 +32,51 @@ class Layout:
         self.size = 16
 
         self.line = []
-        for tok in tokens:
-            self.token(tok)
+        self.recurse(tree)
         self.flush()
 
-    def token(self, tok):
-        """
-        Applies cosmetic styles to the text according to different HTML tags
-        """
-        if isinstance(tok, Text):
-            self.text(tok)
-        elif tok.tag == "i":
+    def recurse(self, tree):
+        if isinstance(tree, Text):
+            for word in tree.text.split():
+                self.word(word)
+        else:
+            self.open_tag(tree.tag)
+            for child in tree.children:
+                self.recurse(child)
+            self.close_tag(tree.tag)
+
+    def open_tag(self, tag):
+        if tag == "i":
             self.style = "italic"
-        elif tok.tag == "/i":
-            self.style = "roman"
-        elif tok.tag == "b":
+        elif tag == "b":
             self.weight = "bold"
-        elif tok.tag == "/b":
-            self.weight = "normal"
-        elif tok.tag == "small":
+        elif tag == "small":
             self.size -= 2
-        elif tok.tag == "/small":
-            self.size += 2
-        elif tok.tag == "big":
+        elif tag == "big":
             self.size += 4
-        elif tok.tag == "/big":
-            self.size -= 4
-        elif tok.tag == "br":
+        elif tag == "br":
             self.flush()
-        elif tok.tag == "/p":
+
+    def close_tag(self, tag):
+        if tag == "i":
+            self.style = "roman"
+        elif tag == "b":
+            self.weight = "normal"
+        elif tag == "small":
+            self.size += 2
+        elif tag == "big":
+            self.size -= 4
+        elif tag == "p":
             self.flush()
             self.cursor_y += VSTEP
 
-    def text(self, tok):
+    def word(self, word):
         font = get_font(self.size, self.weight, self.style)
-        # splits the list of words gathered in the token method into words
-        for word in tok.text.split():
-            w = font.measure(word)
-            # if word is bigger than the space available in the rest of the line
-            # start a new line
-            if self.cursor_x + w > WIDTH - HSTEP:
-                self.flush()
-            self.line.append((self.cursor_x, word, font))
-            self.cursor_x += w + font.measure(" ")
+        w = font.measure(word)
+        if self.cursor_x + w > WIDTH - HSTEP:
+            self.flush()
+        self.line.append((self.cursor_x, word, font))
+        self.cursor_x += w + font.measure(" ")
 
     def flush(self):
         """Adds new line"""
