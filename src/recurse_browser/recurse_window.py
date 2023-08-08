@@ -1,8 +1,9 @@
 import tkinter
 
-from recurse_browser.browser_config import WIDTH, HEIGHT, HSTEP, VSTEP, SCROLL_STEP
+from recurse_browser.browser_config import WIDTH, HEIGHT, VSTEP, SCROLL_STEP
+from recurse_browser.html_parser import HTMLParser
 from recurse_browser.recurse_requests import request
-from recurse_browser.text_formatting import lex, Layout
+from recurse_browser.text_formatting import Layout
 
 
 class Browser:
@@ -35,10 +36,8 @@ class Browser:
 
     def load(self, url):
         headers, body = request(url)
-        # separates text content from tag content from within the body tag
-        tokens = lex(body)
-        # processes tags from body and apply comestic styles into body text
-        self.display_list = Layout(tokens).display_list
+        self.nodes = HTMLParser(body).parse()
+        self.display_list = Layout(self.nodes).display_list
         self.draw()
 
     def scrolldown(
